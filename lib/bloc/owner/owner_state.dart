@@ -1,6 +1,6 @@
 part of 'owner_bloc.dart';
 
-abstract class OwnerState extends Equatable {
+class OwnerState extends Equatable {
   const OwnerState();
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:latihan_laraflutter/bloc/process_get_owner_bloc/process_get_owner_bloc.dart';
 import 'bloc/employee/employee_bloc.dart';
 import 'bloc/owner/owner_bloc.dart';
 import 'repositories/employee_repository.dart';
@@ -21,6 +22,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => OwnerBloc(OwnerRepository())..add(LoadOwners()),
+        ),
+        BlocProvider(
+          create: (context) => ProcessGetOwnerBloc(),
         ),
       ],
       child: MaterialApp(

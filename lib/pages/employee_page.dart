@@ -37,15 +37,14 @@ class _EmployeePageState extends State<EmployeePage> {
                     icon: Icon(Icons.delete),
                     onPressed: () {
                       BlocProvider.of<EmployeeBloc>(context)
-                          .add(DeleteEmployee(employee.id));
+                          .add(DeleteEmployee(employee.id!));
                     },
                   ),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            EmployeeFormPage(employee: employee),
+                        builder: (context) => EmployeeFormPage(),
                       ),
                     );
                   },
