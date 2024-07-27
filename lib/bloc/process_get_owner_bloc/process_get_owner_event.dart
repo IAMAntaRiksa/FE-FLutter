@@ -11,9 +11,6 @@ class AddSingleDataOwner extends ProcessGetOwnerEvent {
   final Owner owner;
 
   const AddSingleDataOwner(this.owner);
-
-  @override
-  List<Object> get props => [owner];
 }
 
 class DeleteSingleDataOwner extends ProcessGetOwnerEvent {

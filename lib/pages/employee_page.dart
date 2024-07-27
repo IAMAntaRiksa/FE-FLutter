@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:latihan_laraflutter/pages/employee_edit_form_page.dart';
 import 'package:latihan_laraflutter/pages/employee_form_page.dart';
 import '../bloc/employee/employee_bloc.dart';
 
@@ -44,7 +45,8 @@ class _EmployeePageState extends State<EmployeePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EmployeeFormPage(),
+                        builder: (context) =>
+                            EmployeeEditFormPage(employee: employee),
                       ),
                     );
                   },

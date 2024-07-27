@@ -33,7 +33,7 @@ class OwnerPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => OwnerFormPage(owner: owner),
+                        builder: (context) => OwnerFormPage(owner: owner)
                       ),
                     );
                   },

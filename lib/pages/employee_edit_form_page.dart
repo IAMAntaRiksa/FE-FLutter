@@ -1,32 +1,49 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latihan_laraflutter/bloc/process_get_owner_bloc/process_get_owner_bloc.dart';
+import 'package:latihan_laraflutter/models/owner.dart';
 import '../bloc/employee/employee_bloc.dart';
 import '../bloc/owner/owner_bloc.dart';
 import '../models/employee.dart';
-import '../models/owner.dart';
 
-class EmployeeFormPage extends StatefulWidget {
-  EmployeeFormPage();
+class EmployeeEditFormPage extends StatefulWidget {
+  final Employee? employee;
+
+  EmployeeEditFormPage({this.employee});
 
   @override
-  _EmployeeFormPageState createState() => _EmployeeFormPageState();
+  _EmployeeEditFormPageState createState() => _EmployeeEditFormPageState();
 }
 
-class _EmployeeFormPageState extends State<EmployeeFormPage> {
+class _EmployeeEditFormPageState extends State<EmployeeEditFormPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _jobController = TextEditingController();
+
+  late TextEditingController _nameController;
+  late TextEditingController _jobController;
 
   int _selectedOwner = 0;
 
+  Employee get employee => widget.employee!;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _nameController = TextEditingController(text: employee.name);
+    _jobController = TextEditingController(text: employee.job);
+    _selectedOwner = employee.ownerId;
+
+    // Trigger the process to fetch owners
+    BlocProvider.of<OwnerBloc>(context).add(LoadOwners());
+  }
+
   @override
   Widget build(BuildContext context) {
-    ProcessGetOwnerState state = context.watch<ProcessGetOwnerBloc>().state;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text("addData"),
+        title: Text("Edit Data"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -71,15 +88,31 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                     labelText: 'Owner',
                     border: OutlineInputBorder(),
                   ),
-                  child: Text(
-                    _selectedOwner == 0
-                        ? 'Select owner'
-                        : state is ProcessGetOwnerLoaded
-                            ? state.owners
-                                .firstWhere(
-                                    (element) => element.id == _selectedOwner)
-                                .name
-                            : '',
+                  child: BlocSelector<OwnerBloc, OwnerState, List<Owner>>(
+                    selector: (state) {
+                      if (state is OwnerLoaded) {
+                        return state.owners;
+                      }
+                      return [];
+                    },
+                    builder: (context, owners) {
+                      if (owners.isNotEmpty) {
+                        return Text(
+                          _selectedOwner == 0
+                              ? 'Select owner'
+                              : owners
+                                  .firstWhere(
+                                      (owner) => owner.id == _selectedOwner)
+                                  .name,
+                        );
+                      } else if (context.read<OwnerBloc>().state
+                          is OwnerError) {
+                        return const Center(
+                            child: Text('Failed to load owners'));
+                      } else {
+                        return Container();
+                      }
+                    },
                   ),
                 ),
               ),
@@ -94,7 +127,8 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                       return;
                     }
                     BlocProvider.of<EmployeeBloc>(context).add(
-                      AddEmployee(Employee(
+                      UpdateEmployee(Employee(
+                        id: widget.employee!.id,
                         name: _nameController.text,
                         job: _jobController.text,
                         ownerId: _selectedOwner,
@@ -103,7 +137,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                     Navigator.pop(context);
                   }
                 },
-                child: const Text('Save'),
+                child: const Text('Update'),
               ),
             ],
           ),
@@ -151,7 +185,9 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                           onTap: () {
                             BlocProvider.of<ProcessGetOwnerBloc>(context)
                                 .add(AddSingleDataOwner(owner));
+
                             _selectedOwner = owner.id;
+
                             Navigator.pop(context);
                           },
                         );

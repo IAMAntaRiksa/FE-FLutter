@@ -13,9 +13,6 @@ class AddEmployee extends EmployeeEvent {
   final Employee employee;
 
   const AddEmployee(this.employee);
-
-  @override
-  List<Object> get props => [employee];
 }
 
 class UpdateEmployee extends EmployeeEvent {
