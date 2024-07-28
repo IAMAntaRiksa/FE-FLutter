@@ -41,6 +41,13 @@ class _EmployeeEditFormPageState extends State<EmployeeEditFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    OwnerState state = context.watch<OwnerBloc>().state;
+
+    if (state is OwnerLoaded) {
+      var itemId = state.owners.singleWhere((e) => e.id == _selectedOwner);
+      _selectedOwner = itemId.id;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Edit Data"),
@@ -186,7 +193,9 @@ class _EmployeeEditFormPageState extends State<EmployeeEditFormPage> {
                             BlocProvider.of<ProcessGetOwnerBloc>(context)
                                 .add(AddSingleDataOwner(owner));
 
-                            _selectedOwner = owner.id;
+                            setState(() {
+                              _selectedOwner = owner.id;
+                            });
 
                             Navigator.pop(context);
                           },

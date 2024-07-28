@@ -11,7 +11,7 @@ class ProcessGetOwnerBloc
   ProcessGetOwnerBloc() : super(ProcessGetOwnerInitial()) {
     on<AddSingleDataOwner>((event, emit) {
       emit(ProcessGetOwnerInitial());
-      var contains = owners.where((element) => element.id == event.owner.id);
+      var contains = owners.where((e) => e.id == event.owner.id);
       if (contains.isEmpty) {
         owners.add(event.owner);
       } else {
