@@ -7,17 +7,11 @@ class ProcessGetOwnerEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class AddSingleDataOwner extends ProcessGetOwnerEvent {
+class SelectOwner extends ProcessGetOwnerEvent {
   final Owner owner;
 
-  const AddSingleDataOwner(this.owner);
+  const SelectOwner(this.owner);
 }
 
-class DeleteSingleDataOwner extends ProcessGetOwnerEvent {
-  final Owner ownerId;
 
-  const DeleteSingleDataOwner(this.ownerId);
-
-  @override
-  List<Object> get props => [ownerId];
-}
+class ResetSeletOwner extends ProcessGetOwnerEvent{}

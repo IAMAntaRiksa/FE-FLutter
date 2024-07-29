@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latihan_laraflutter/bloc/process_get_owner_bloc/process_get_owner_bloc.dart';
@@ -23,8 +21,6 @@ class _EmployeeEditFormPageState extends State<EmployeeEditFormPage> {
   late TextEditingController _nameController;
   late TextEditingController _jobController;
 
-  int _selectedOwner = 0;
-
   Employee get employee => widget.employee!;
 
   @override
@@ -33,20 +29,23 @@ class _EmployeeEditFormPageState extends State<EmployeeEditFormPage> {
 
     _nameController = TextEditingController(text: employee.name);
     _jobController = TextEditingController(text: employee.job);
-    _selectedOwner = employee.ownerId;
+
+    // Set selected owner in BLoC
+    context
+        .read<ProcessGetOwnerBloc>()
+        .add(SelectOwner(Owner(id: employee.ownerId, name: '')));
+
+
+        
 
     // Trigger the process to fetch owners
-    BlocProvider.of<OwnerBloc>(context).add(LoadOwners());
+    context.read<OwnerBloc>().add(LoadOwners());
   }
 
   @override
   Widget build(BuildContext context) {
-    OwnerState state = context.watch<OwnerBloc>().state;
-
-    if (state is OwnerLoaded) {
-      var itemId = state.owners.singleWhere((e) => e.id == _selectedOwner);
-      _selectedOwner = itemId.id;
-    }
+    ProcessGetOwnerState ownerState =
+        context.watch<ProcessGetOwnerBloc>().state;
 
     return Scaffold(
       appBar: AppBar(
@@ -104,12 +103,16 @@ class _EmployeeEditFormPageState extends State<EmployeeEditFormPage> {
                     },
                     builder: (context, owners) {
                       if (owners.isNotEmpty) {
+                        var id = context
+                            .read<ProcessGetOwnerBloc>()
+                            .state
+                            .selectedOwner!
+                            .id;
                         return Text(
-                          _selectedOwner == 0
+                          id == 0
                               ? 'Select owner'
                               : owners
-                                  .firstWhere(
-                                      (owner) => owner.id == _selectedOwner)
+                                  .firstWhere((owner) => owner.id == id)
                                   .name,
                         );
                       } else if (context.read<OwnerBloc>().state
@@ -127,7 +130,8 @@ class _EmployeeEditFormPageState extends State<EmployeeEditFormPage> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    if (_selectedOwner == 0) {
+                    if (ownerState is! ProcessGetOwnerLoaded ||
+                        ownerState.selectedOwner == null) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text('Please select an owner'),
                       ));
@@ -138,7 +142,7 @@ class _EmployeeEditFormPageState extends State<EmployeeEditFormPage> {
                         id: widget.employee!.id,
                         name: _nameController.text,
                         job: _jobController.text,
-                        ownerId: _selectedOwner,
+                        ownerId: ownerState.selectedOwner!.id,
                       )),
                     );
                     Navigator.pop(context);
@@ -184,19 +188,20 @@ class _EmployeeEditFormPageState extends State<EmployeeEditFormPage> {
                         final owner = state.owners[index];
                         return ListTile(
                           title: Text(owner.name),
-                          trailing: _selectedOwner == owner.id
+                          trailing: context
+                                      .read<ProcessGetOwnerBloc>()
+                                      .state
+                                      .selectedOwner
+                                      ?.id ==
+                                  owner.id
                               ? const Icon(Icons.radio_button_checked,
                                   color: Colors.green)
                               : const Icon(Icons.radio_button_unchecked,
                                   color: Colors.green),
                           onTap: () {
-                            BlocProvider.of<ProcessGetOwnerBloc>(context)
-                                .add(AddSingleDataOwner(owner));
-
-                            setState(() {
-                              _selectedOwner = owner.id;
-                            });
-
+                            context
+                                .read<ProcessGetOwnerBloc>()
+                                .add(SelectOwner(owner));
                             Navigator.pop(context);
                           },
                         );

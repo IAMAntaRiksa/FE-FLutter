@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latihan_laraflutter/bloc/process_get_owner_bloc/process_get_owner_bloc.dart';
+import 'package:latihan_laraflutter/pages/widgets/show_buttomsheet.dart';
 import '../bloc/employee/employee_bloc.dart';
-import '../bloc/owner/owner_bloc.dart';
 import '../models/employee.dart';
-import '../models/owner.dart';
 
 class EmployeeFormPage extends StatefulWidget {
   EmployeeFormPage();
@@ -18,15 +17,20 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _jobController = TextEditingController();
 
-  int _selectedOwner = 0;
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<ProcessGetOwnerBloc>(context).add(ResetSeletOwner());
+  }
 
   @override
   Widget build(BuildContext context) {
-    ProcessGetOwnerState state = context.watch<ProcessGetOwnerBloc>().state;
+    ProcessGetOwnerState ownerState =
+        context.watch<ProcessGetOwnerBloc>().state;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("addData"),
+        title: const Text("addData"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -64,7 +68,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
               const SizedBox(height: 16),
               GestureDetector(
                 onTap: () {
-                  _showOwnerSelectionBottomSheet(context);
+                  showOwnerSelectionBottomSheet(context);
                 },
                 child: InputDecorator(
                   decoration: const InputDecoration(
@@ -72,14 +76,10 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                     border: OutlineInputBorder(),
                   ),
                   child: Text(
-                    _selectedOwner == 0
-                        ? 'Select owner'
-                        : state is ProcessGetOwnerLoaded
-                            ? state.owners
-                                .firstWhere(
-                                    (element) => element.id == _selectedOwner)
-                                .name
-                            : '',
+                    ownerState is ProcessGetOwnerLoaded &&
+                            ownerState.selectedOwner!.id != 0
+                        ? ownerState.selectedOwner!.name
+                        : 'Select owner',
                   ),
                 ),
               ),
@@ -87,7 +87,8 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    if (_selectedOwner == 0) {
+                    if (ownerState is! ProcessGetOwnerLoaded ||
+                        ownerState.selectedOwner == null) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text('Please select an owner'),
                       ));
@@ -97,7 +98,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                       AddEmployee(Employee(
                         name: _nameController.text,
                         job: _jobController.text,
-                        ownerId: _selectedOwner,
+                        ownerId: ownerState.selectedOwner!.id,
                       )),
                     );
                     Navigator.pop(context);
@@ -109,65 +110,6 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
           ),
         ),
       ),
-    );
-  }
-
-  void _showOwnerSelectionBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return BlocBuilder<OwnerBloc, OwnerState>(
-          builder: (context, state) {
-            if (state is OwnerLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is OwnerLoaded) {
-              return Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      'Select Owner',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: state.owners.length,
-                      itemBuilder: (context, index) {
-                        final owner = state.owners[index];
-                        return ListTile(
-                          title: Text(owner.name),
-                          trailing: _selectedOwner == owner.id
-                              ? const Icon(Icons.radio_button_checked,
-                                  color: Colors.green)
-                              : const Icon(Icons.radio_button_unchecked,
-                                  color: Colors.green),
-                          onTap: () {
-                            BlocProvider.of<ProcessGetOwnerBloc>(context)
-                                .add(AddSingleDataOwner(owner));
-                            _selectedOwner = owner.id;
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              );
-            } else if (state is OwnerError) {
-              return const Center(child: Text('Failed to load owners'));
-            } else {
-              return Container();
-            }
-          },
-        );
-      },
     );
   }
 }

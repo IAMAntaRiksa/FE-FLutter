@@ -7,22 +7,17 @@ part 'process_get_owner_state.dart';
 
 class ProcessGetOwnerBloc
     extends Bloc<ProcessGetOwnerEvent, ProcessGetOwnerState> {
-  List<Owner> owners = [];
   ProcessGetOwnerBloc() : super(ProcessGetOwnerInitial()) {
-    on<AddSingleDataOwner>((event, emit) {
-      emit(ProcessGetOwnerInitial());
-      var contains = owners.where((e) => e.id == event.owner.id);
-      if (contains.isEmpty) {
-        owners.add(event.owner);
-      } else {
-        owners[owners.indexWhere((e) => e.id == event.owner.id)] = event.owner;
-      }
-      emit(ProcessGetOwnerLoaded(owners: owners));
+    on<SelectOwner>((event, emit) {
+      emit(ProcessGetOwnerLoaded(
+        listOwner: state.owners,
+        idOwner: event.owner,
+      ));
     });
-    on<DeleteSingleDataOwner>((event, emit) {
-      emit(ProcessGetOwnerInitial());
-      owners.remove(event.ownerId);
-      emit(ProcessGetOwnerLoaded(owners: owners));
+
+    on<ResetSeletOwner>((event, emit) {
+      emit(ProcessGetOwnerLoaded(
+          listOwner: state.owners, idOwner: Owner(id: 0, name: '')));
     });
   }
 }

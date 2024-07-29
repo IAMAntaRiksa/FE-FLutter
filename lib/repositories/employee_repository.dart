@@ -4,7 +4,7 @@ import '../models/employee.dart';
 
 class EmployeeRepository {
   final String apiUrl =
-      "https://6b14-182-1-231-155.ngrok-free.app/api/employees";
+      "https://1ae7-114-10-99-41.ngrok-free.app/api/employees";
 
   Future<List<Employee>> getEmployees() async {
     final response = await http.get(Uri.parse(apiUrl));
