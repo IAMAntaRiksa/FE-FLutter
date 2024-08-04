@@ -35,9 +35,6 @@ class _EmployeeEditFormPageState extends State<EmployeeEditFormPage> {
         .read<ProcessGetOwnerBloc>()
         .add(SelectOwner(Owner(id: employee.ownerId, name: '')));
 
-
-        
-
     // Trigger the process to fetch owners
     context.read<OwnerBloc>().add(LoadOwners());
   }
@@ -130,7 +127,7 @@ class _EmployeeEditFormPageState extends State<EmployeeEditFormPage> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    if (ownerState is! ProcessGetOwnerLoaded ||
+                    if (ownerState.status != ProcessStatus.success ||
                         ownerState.selectedOwner == null) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text('Please select an owner'),

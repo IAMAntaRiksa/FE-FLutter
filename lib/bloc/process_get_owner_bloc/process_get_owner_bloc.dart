@@ -7,17 +7,19 @@ part 'process_get_owner_state.dart';
 
 class ProcessGetOwnerBloc
     extends Bloc<ProcessGetOwnerEvent, ProcessGetOwnerState> {
-  ProcessGetOwnerBloc() : super(ProcessGetOwnerInitial()) {
+  ProcessGetOwnerBloc() : super(const ProcessGetOwnerState()) {
     on<SelectOwner>((event, emit) {
-      emit(ProcessGetOwnerLoaded(
-        listOwner: state.owners,
-        idOwner: event.owner,
+      emit(state.copyWith(
+        status: ProcessStatus.success,
+        selectedOwner: event.owner,
       ));
     });
 
     on<ResetSeletOwner>((event, emit) {
-      emit(ProcessGetOwnerLoaded(
-          listOwner: state.owners, idOwner: Owner(id: 0, name: '')));
+      emit(state.copyWith(
+        status: ProcessStatus.success,
+        selectedOwner: Owner(id: 0, name: ''),
+      ));
     });
   }
 }

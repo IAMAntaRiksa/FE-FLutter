@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/owner.dart';
 
 class OwnerRepository {
-  final String apiUrl = "https://1ae7-114-10-99-41.ngrok-free.app/api/owners";
+  final String apiUrl = "https://3580-114-10-98-190.ngrok-free.app/api/owners";
 
   Future<List<Owner>> getOwners() async {
     final response = await http.get(Uri.parse(apiUrl));

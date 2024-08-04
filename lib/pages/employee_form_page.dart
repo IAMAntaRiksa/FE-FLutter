@@ -76,7 +76,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                     border: OutlineInputBorder(),
                   ),
                   child: Text(
-                    ownerState is ProcessGetOwnerLoaded &&
+                    ownerState.status == ProcessStatus.success &&
                             ownerState.selectedOwner!.id != 0
                         ? ownerState.selectedOwner!.name
                         : 'Select owner',
@@ -87,7 +87,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    if (ownerState is! ProcessGetOwnerLoaded ||
+                    if (ownerState.status != ProcessStatus.success ||
                         ownerState.selectedOwner == null) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text('Please select an owner'),
